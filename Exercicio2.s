@@ -56,7 +56,9 @@ main:
 
         beq	$s0, $s1, sair	#feito para sair do loop (quando um valor for igual ao valor comparado), nesse caso, quando o s0 for igual ao s1, eu pulo fora do loop
 
-        li $v0, 4
+        #printando a virgula
+
+        li $v0, 4           
         la $a0, str1
         syscall
 
