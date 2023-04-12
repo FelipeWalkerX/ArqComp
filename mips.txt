@@ -1,0 +1,788 @@
+.data
+	#area par dados na memoria principal
+	msg : .asciiz "Ola" #mensagem a ser exibida
+.text
+	#area para instruçoes do programa
+
+	li $v0, 4   #intruçao para impressao de string
+	la $a0, msg #indica o endereço onde esta a mensagem, la = load adress
+	syscall     #faz o programa rodar
+
+====================================
+
+#imprimir um caracter
+.data
+	caractere: .byte 'A' #caractere a ser impresso
+.text 
+	li $v0, 4    #imprime char ou string 
+	la $a0, caractere
+	syscall
+
+	li $v0, 10   #comando para finalizar o programa
+	syscall
+============================================
+
+#imprimir um inteiro
+.data
+	idade: .word 56  #vetor inteiro na memoria ram
+.text
+	li $v0, 1        #comando para imprimir inteiro
+	lw $a0, idade    #lw =  load word
+	syscall
+
+	li $v0, 10
+	syscall 
+==================================================
+
+#soma de inteiros 
+.data
+
+.text
+	li $t0, 75
+	li $t1, 25         #addi $t1, $zero, 25
+	add $s0, $t0, $t1  #soma 
+	addi $s1, $s0, 36  #soma imediata
+
+	#subtração = sub e subi
+
+======================================================
+
+#multiplicação 
+.data
+
+.text 
+	li $t0, 12
+	addi $t1, $zero, 10  #faz a mesma função que a sintaxe de cima
+
+	#$s0 terá  o resultado da  multiplicação 
+	mul $s0, $t0, $t1
+
+	li $v0, 1       #imprimir um inteiro 
+	move $a0, $s0   #passa o valor de um registrador para outro
+	syscall
+
+===================================================
+#shift logical left
+
+.data
+
+.text
+	sll $t0, $t1, n   #faz shift left de t a n casas para a esquerda
+	sll $s1, $t1, 10  #multiplica por 2^10, daria entao 10024
+
+===========================================================================
+#leitura de inteiros
+
+.data 
+	msg: .asciiz "Ola. Digite sua idade: "
+	msg: .asciiz "Sua idade eh:
+.text
+	li $v0, 4      #imprime uma string que esta em a0
+	la $a0, msg    #carrega "msg" em a0 e imprime ela
+	sycall
+	
+	li $v0, 5      #le um numero inteiro fornecido do teclado
+	syscall
+
+	move $t0, $v0   #faz uma copia, o valor fornecido é passado de v0 para t0
+
+
+	li $v0, 4
+	la $a0, msg2
+	syscall
+
+	li $v0, 1  #imprime inteiro
+	move $a0, $t0  #passa o valor de t0 lá de cima para a0
+
+
+	li $v0, 10
+	syscall
+
+
+=========================
+#IF
+.data
+	msg: .asciiz "Forneça um numero: "
+	par: .asciiz "O numero eh par."
+	impar: .asciiz "O numero é impar."
+.text
+	#imprime a mensagem para o usuario
+	li $v0, 4  #leitura de string
+	la $a0, msg
+	syscall
+
+	#le o numero
+	li $v0, 5     #leitura de inteiro 
+	syscall
+
+	li $t0, 2     #atribuindo ao t0 o valor 2
+	div $v0, $t0  #divide v0 por t0
+	
+	mfhi $t1      #t1 irá possuir o resto da divisão por 2
+
+	beq $t1, $zero, imprimePar    #beq = se for igual; if t1 = 0 execute labell
+	
+	li $v0, 4
+	li $a0, impar
+	syscall
+
+	li $v0, 10
+	syscall
+
+	
+
+imprimePar: 
+	 li $v0, 4
+	 la $a0, par
+	 syscall
+
+=============================================
+#outro exemplo de if, imprimindo se ele é maior menor ou igual a 0
+
+.data
+	maior: "O numero é maior que zero."
+	menor: "O numero é menor que zero."
+	igual: "O numero é igual a zero."
+
+.text
+	#le um numero inteiro
+	li $v0, 5
+	syscall
+
+	move $t0, $v0  #passa o valor lido para t0
+
+	beq $t0, $zer0, imprimeIgual  # "equal"
+	
+	bgt $t0, $zero, imprimeMaior  #"great"
+
+	blt $t0, $zero, imprimeMenor  #"less"
+
+#bne : se for diferente; ble : se for menor ou igual; bge: se for maior ou igual
+
+
+imprimeIgual:
+	#imprime se for igual
+	li $v0, 4
+	la $a0, igual
+	syscall
+
+	#encerra o programa
+	li $v0, 10
+	syscall
+
+imprimeMaior:
+	#imprime se for maior
+	li $v0, 4
+	la $a0, maior
+	syscall
+
+	#encerra o programa
+	li $v0, 10
+	syscall
+
+
+imprimeMenor:
+	#imprime se for menor
+	li $v0, 4
+	la $a0, menor
+	syscall
+
+	#encerra o programa
+	li $v0, 10
+	syscall
+
+
+==========================================
+#while, escreva um programa que le um numero inteiro positivo e imprime todos os #numero de zero até o numero lido 
+
+.data
+	espaço: .byte" "
+
+.text
+
+	#le o numero
+	li $v0, 5
+	syscall
+	
+	move $t0, $v0    #passa o valor lido em v0 para t0
+
+	move $t1, $zero  #inicializando uma variavel t1 com o valor 0
+
+
+laço:
+	#if t1 maior que t0, entra no sair
+	bgt $t1, $t0, sair
+	
+	#imprime t1
+	li $v0, 1  #imprime o inteiro
+	move $a0, $t1 #passa o valor de t1 para a0 para que a impressao ocorra
+	syscall
+
+	#imprime o espaço em branco
+	li $v0, 4
+	la $a0, espaço
+	syscall
+
+	addi $t1, $t1, 1   #soma 1 no t1 ate ele chegar no valor de t0
+	j laço   #laço while
+
+sair:
+
+	li $v0, 10
+	syscall
+
+===============================================================
+
+1)
+.data
+.text
+ li $t0, 15
+ li $t1, 30
+ 
+ add $t3, $t1, $t0
+
+###############################################################################
+
+2)
+.data
+.text
+ 	addi $t0, $zero, 10  #li $t0, 10
+	addi $t1, $zero, 20  #li $t1, 20
+
+	addi $t0, $t0, 4
+	subi $t1, $t1, 6
+
+	sub $t3, $t0, $t1
+
+	#printar um inteiro
+	li $v0, 1
+	move $a0, $t3   #passa t3 pra a0 pois é preciso estar em a0 para imprimir
+	syscall
+
+	#fecha o programa
+	li $v0, 10
+	syscall
+
+
+############################################################################################
+
+3)
+.data
+
+.text
+
+#define o primeiro valor na posiçao 10
+li $t0, 5
+sw $t0, 10($sp)    #store word, vai guardar o valor 5 na posicao 10
+
+#define o segundo valor na posiçao 40
+li $t1, 20
+sw $t1, 40($sp)    #guarda o valor 20, na posicao 40
+
+#define a soma na posicao 100
+add $t2, $t0, $t1
+sw $t2, 100($sp)
+
+#imprime na tela o valor inteiro
+li $v0, 1
+move $a0, $t2
+syscall
+
+#######################################################################################################
+
+4)
+.data
+
+.text
+
+li $t0, 100
+sw $t0, 20($zero)
+
+li $t1, 200
+sw $t1, 40($zero)
+
+###########################################
+
+5) fodase a 5...(mentira, esqueci de fazer)
+
+
+###############################################################################################################
+
+6)
+
+.data
+	msg: .asciiz " Digite um numero: "
+	msg2: .asciiz " O numero eh:  "
+	ms3: .asciiz "O numero eh 0."
+.text
+	#imprime na tela a mensagem
+	li $v0, 4
+	la $a0, msg
+	syscall
+
+	#escaneia do teclado um nmr inteiro
+	li $v0, 5
+	syscall
+
+	#passa o nmr inteiro para o registrador t0
+	move $t0, $v0
+
+	#define ao registrador t1 o valor 10
+	li $t1, 10
+	
+	#se t0 for igual a t1(10) entre na função printf
+	beq $t0, $t1, printf
+
+	#else imprime a mensagem 3
+	li $v0, 4
+	li $a0, msg3
+	syscall
+	
+
+printf:
+	#imprime a mensagem 2
+	li $v0, 4
+	la $a0, msg2
+	syscall
+	
+	#imprime um inteiro
+	li $v0, 1
+	move $a0, $t0   #move de t0 para a0 
+	syscall
+
+	#fecha o programa
+	li $v0, 10
+	syscall
+
+##############################################################################################
+
+7) 
+.data:
+	msg: .asciiz "Forneça o primeiro numero: "
+	msg2: .asciiz "Forneça o segundo numero: "
+	msg3: .asciiz "O maior valor eh: "
+	msg4: .asciiz "Os valores sao iguais, entao : 
+.text
+	#lendo primeiro numero
+	li $v0, 4
+	la $a0, msg
+	syscall
+
+	li $v0, 5        #recebe do teclado o numero 
+	syscall
+	move $t0, $v0    #move o numero para o registrador t0
+
+	#lendo segundo numero
+	li $v0, 4
+	la $a0, msg2
+	syscall
+
+	li $v0, 5       #recebe do teclado o numero
+	syscall
+	move $t1, $v0   #move o numero para o registador t1
+
+	#if
+	bgt $t0, $t1, print1   #t0 eh maior que t1
+	blt $t0, $t1, print2   #t0 eh menor que t1
+
+	#caso sejam iguais
+	addi $t2, $zero, -111
+  
+	#lendo e exibindo a mensagem 4 
+	li $v0, 4    
+	la $a0, msg4
+	syscall
+	
+	li $v0, 1       #imprimindo o inteiro no t2 (-111)
+	move $a0, $t2   #passando o inteiro do t2 para a0, para imprimir
+	syscall
+
+	li $v0, 10    #finaliza o programa
+	syscall
+	
+
+
+print1:
+	li $v0, 4  
+	la $a0, msg3
+	syscall
+
+	li $v0, 1
+	move $a0, $t0
+	syscall
+
+	li $v0, 10
+	syscall
+
+print2:
+	li $v0, 4
+	la $a0, msg3
+	syscall
+	
+	li $v0, 1
+	move $a0, $t1
+	syscall
+
+	li $v0, 10
+	syscall
+
+#######################################################################################
+
+8)
+.data
+	msg: .asciiz "Forneça o primeiro valor : "
+	msg2: .asciiz "Fornceça o segundo valor: "
+	msg3:  .asciiz "A multiplicaçao eh: "
+.text
+	#imprime a mensagem
+	li $v0, 4
+	la $a0, msg
+	syscall
+	
+	#recebe o valor 1 do teclado e passa pra t0
+	li $v0, 5
+	syscall
+	move $t0, $v0
+
+	#imprime a mensagem 2
+	li $v0, 4
+	la $a0, msg2
+	syscall
+
+	#recebe o valor 2 do teclado e passa para t1
+	li $v0, 5
+	syscall
+	move $t1, $v0
+
+	add $t2, $zero, $t1  #auxiliar com o valor de t1 para ser um contador
+	move $t3, $zero      #auxiliar da multiplificaçao 
+
+loop:
+	beq $t2, $zero, exit #quando meu auxiliar chegar em 0 vai pra exit
+
+	add $t3, $t3, $t0   #t3 vai ir receber o valor de t0 t1vezes
+	addi $t2, $t2, -1   #t2 vai decrementando ate chegar em 0
+
+	j loop
+	
+	
+		
+
+exit:
+	li $v0, 4
+	la $a0, msg3
+	syscall
+	
+	li $v0, 1
+	move $a0, $t3
+	syscall
+
+	li $v0, 10
+	syscall
+
+
+
+#############################################################################################################
+
+9)
+
+.data
+
+.text
+	li $t0, 3  # a
+	li $t1, 4  # b
+	li $t2, 10 # m
+
+	move $t2, $t0         #vai passar o valor de a para m
+
+	blt $t1, $t2, if      #se b for menor que m, entra no if
+
+	#se nao for, imprime o atual valor de m, que foi recebido de a
+	li $v0, 1
+	move $a0, t2
+	syscall
+	
+	li $v0, 10
+	syscall
+
+if:
+	#passa o valor de b para m
+	move $t2, $t1
+	
+	li $v0, 1
+	move $a0, $t2
+	syscall
+
+	li $v0,10
+	syscall
+
+##################################################################################################
+
+10)
+.data
+.text
+
+	li $t0, 2  # a
+	li $t1, 10 # b 
+	li $t3, 0  # x
+	li $t4, 50
+	
+	#primeira condicao
+	bge $t0, $zero, batata  #"maior ou igual"
+	j exit    #se o a for menor que 0 vai pro exit
+	
+
+batata:
+	#segunda condicao
+	ble $t1, $t4, label	 #"menor ou igual"
+	j exit
+	
+
+
+label:
+
+	addi $t3, $zero, 1
+
+	li $v0, 1
+	move $a0, $t3
+	syscall
+
+exit:
+	li $v0, 10
+	syscall
+
+
+#######################################################################3
+
+11)
+.data 
+
+.text
+
+	li $t0, 0	#i
+	li $t1, 10    #j
+	li $t2, 0	#k
+
+while:
+
+	bgt $t0, $t1, exit #se t0 for maior que t1 entra no exit
+
+	addi $t0, $t0, 1  #contador, vai ate chegar em 10 e entra no if acima
+	addi $t2, $t2, 10  #vai adicionando 10 ao t2
+
+	j while  #laço while 
+
+
+exit:
+	#imprime o i
+	li $v0, 1
+	move $a0, $t0
+	syscall
+
+	#imprime o k
+	li $v0, 1
+	move $a0, $t2
+
+	#fecha o programa
+	li $v0, 10
+	syscall
+
+############################################################################################################ 
+
+12)
+
+.data
+.text
+
+	li $t0, 0 # fat
+	li $t1, 5 # n
+
+	li $t2, 1 #auxiliar do loop
+	li $t0, 1 #atualizando o valor de fat para 1
+
+	li $t3, 0
+
+
+loop:
+	blt $t1, $t2, sair
+	
+	add $t3, $t3, $t1  #t3 começa em 0 e somando t1 depois t1-1...
+	
+	addi $t1, $t1, -1  #t1 começa em 5, depois 5-1, ....
+
+	j loop
+	
+sair:
+
+	li $v0, 1
+	move $a0, $t3
+	syscall
+
+########################################################################################################
+
+
+13)
+
+.data
+	vetor: .word 3, 0, 1, 2, -6, -2, 4, 10, 3, 7, 8, -9, -15, -20, -87, -100
+	msg1: .asciiz "Seja bem vindo e bla bla bla"
+	msg2: .asciiz "Elemento encontrado"
+	msg3: .asciiz "Elemento nao encontrado"
+
+.text
+	main:
+		la $s0, vetor #pega o endereço do vetor
+		li $t0, -100  #condiçao do while
+		li $t1, 0    #auxiliar
+	
+		#imprime o boas vindas
+		li $v0, 4
+		la $a0, msg
+		syscall
+
+		#recebe o numero do usuario	
+		li $v0, 5
+		syscall
+		move $t2, $v0
+
+loop:
+	
+	sll $t3, $t1, 2 #move o aux pra ficar em bits
+
+	add  $t4, $s0, $t3 #pega o endereço atual e joga em t4
+
+	lw $t5, 0($t4) #carrega o valor da posicao t4
+
+	#compara os valores
+	beq $t2, $t5, encontrado 
+	beq $t5, $t0, naoencontrado
+
+	#aumenta o auxiliar
+	addi $t1, $t1, 1
+
+	j loop
+
+
+encontrou:
+	li $v0, 4
+	la $a0, msg2
+	syscall
+
+	li $v0, 1
+	move $a0, $t2
+	syscall
+
+	j exit   #pra nao executar o codigo debaixo e pular direto pro exit
+
+naoencontrado:
+	li $v0, 4
+	la $a0, msg3
+	syscall
+
+exit:
+	li $v0, 10
+	syscall
+
+#####################################################################################################
+
+
+14)
+.data
+	v1 : .word 10, 20, 30, 40, 50, 60
+	v2 : .word 10, 20, 30, 40, 50, 60
+	v3 :
+	
+	msg : .asciiz "A soma dos vetores eh: "
+	msg2: ", "
+.text
+	main:
+		#carregando os vetores
+		la $s1, v1
+		la $s2, v2
+		la $s3, v3
+	
+		li $t0, 0  #indice
+		li $t1, 6  #contador
+
+		#exibe a mensagem na tela
+		li $v0, 4
+		la $a0, msg
+		syscall
+
+
+while:
+	sll $s0, $t0, 2 #transforma t0 em binario
+
+	#v1
+	add $s4, $s0, $s1  #soma o endereço do comeco (s1) com o indice atual(s2) e salva s4
+	lw $t2, 0($s4)     #carrega o endereco s4 em t3
+
+	#v2
+	add $s5, $s0, $s2
+	lw $t3, 0($s5)
+
+	add $t4, $t3, $t2
+
+
+	#salvando em v3
+	add $s6, $s0, $s3
+	sw $t4, 0($s6)
+
+	addi $t0, $t0, 1  #aumenta o indice
+	
+	#exibe o resultado da soma
+	li $v0, 1
+	move $a0, $t4
+	syscall
+
+	# se o indice for igual ao contador, exit
+	beq $t0, $t1, exit
+
+	#exibindo a virgula
+	li $v0, 4
+	la $a0, msg2
+	syscall
+
+	j while
+
+exit:
+	li $v0, 10
+	syscall
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+	
+
+
+
+
+	
+
+	
+
+	
+
+
+	
+ 
+	
+  
+
+
+
+
+
+
+
