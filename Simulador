@@ -1,0 +1,72 @@
+#include <stdio.h>
+#include <stdint.h>
+
+#define SIZE 256
+
+uint32_t R[32];
+uint32_t ram[SIZE];
+uint32_t opcode, rs, rt, rd, shamt, funct;
+
+uint32_t pc = 0, ic = 0;
+
+int main(void) {
+    FILE *binario;
+    int result;
+
+    binario = fopen("C:\\Users\\allan\\Documents\\Trabalho Arquitetura\\binario", "rb");
+
+    if (binario == NULL) {
+        printf("Problemas na abertura do arquivo\n");
+        return 0;
+    }
+
+    result = fread(ram, sizeof(uint32_t), SIZE, binario);
+    printf("Numero de elementos lidos: %d\n", result);
+
+    int i;
+
+    for (i = 0; i < result; i++) {
+        printf("%01x \n", (unsigned int)ram[i]);
+    }
+
+    uint32_t instruct;
+
+    for (i = 0; i < result; i++) {
+        pc = i;
+        ic = ram[pc];
+
+        instruct = ((ic & 0xFF000000) >> 24 | (ic & 0x00FF0000) >> 8 |
+                    (ic & 0x0000FF00) << 8 | (ic & 0x000000FF) << 24);
+
+        ic = instruct;
+
+        opcode = (ic & 0xFC000000) >> 26;
+        rs = (ic & 0x3E00000) >> 21;
+        rt = (ic & 0x1F0000) >> 16;
+        rd = (ic & 0xF800) >> 11;
+        shamt = (ic & 0x7C0) >> 6;
+        funct = (ic & 0x3F);
+
+        printf("\n opcode %01x | rs %01x | rt %01x | rd %01x | shamt %01x | funct %01x\n", opcode, rs, rt, rd, shamt, funct);
+
+        R[rs] = 10;
+        R[rt] = 5;
+
+        switch (opcode) {
+            case 0x00:
+                switch (funct) {
+                    case 0x20:
+                        R[rd] = R[rs] + R[rt];
+                        printf("  Alguma adição: registrador destino %d\n\n", R[rd]);
+                        break;
+
+                    case 0x22:
+                        R[rd] = R[rs] - R[rt];
+                        printf("  Alguma subtração: registrador destino %d\n\n", R[rd]);
+                        break;
+                }
+                break;
+        }
+    }
+
+    fclose(binario);
