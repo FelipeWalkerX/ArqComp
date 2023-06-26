@@ -9,7 +9,7 @@
 .text
 
 main:
-    #Armazenar o 1° numero
+    #Pergunta o 1° numero
     li $v0, 4
     la $a0, n1
     syscall
@@ -19,7 +19,7 @@ main:
     syscall
     move $t0, $v0
 
-    #Armazenar o 2° numero
+    #Pergunta o 2° numero
     li $v0, 4
     la $a0, n2
     syscall
