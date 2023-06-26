@@ -55,7 +55,7 @@ main:
     la $a0, resultadoSubtracao
     syscall
 
-    #Imprimir o resultado da soma
+    #Imprimir o resultado da subtração
     move $a0, $t3
     li $v0, 1
     syscall
